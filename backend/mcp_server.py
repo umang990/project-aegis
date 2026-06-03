@@ -19,6 +19,10 @@ async def list_tools() -> list[types.Tool]:
                     "target_system": {
                         "type": "string",
                         "description": "The target system to attack (e.g., hr_bot, finance_bot, healthcare_bot, coding_assistant)"
+                    },
+                    "threat_vector": {
+                        "type": "string",
+                        "description": "The specific threat vector to deploy (e.g., prompt_injection, data_exfiltration, rag_poisoning)"
                     }
                 },
                 "required": ["target_system"]
