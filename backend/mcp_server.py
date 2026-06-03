@@ -1,5 +1,4 @@
 import json
-from mcp.server.fastapi import FastAPIServerTransport
 from mcp.server import Server
 import mcp.types as types
 from pipelines.attack_pipeline import run_attack_swarm
