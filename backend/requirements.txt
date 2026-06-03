@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+pymongo
+motor
+langchain
+langchain-google-genai
+langgraph
+python-dotenv
+arize-phoenix
+openinference-instrumentation-langchain

@@ -1,0 +1,33 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-white text-black font-sans antialiased;
+  }
+}
+
+@layer components {
+  /* Minimal aesthetic solid button */
+  .btn-primary {
+    @apply bg-black text-white px-6 py-3 rounded-full font-medium tracking-wide transition-transform hover:scale-105 active:scale-95 flex items-center justify-center;
+  }
+
+  /* Minimal aesthetic outline button */
+  .btn-outline {
+    @apply bg-white text-black border-2 border-black px-6 py-3 rounded-full font-medium tracking-wide transition-colors hover:bg-gray-100 active:bg-gray-200 flex items-center justify-center;
+  }
+
+  /* Minimal card style */
+  .card-minimal {
+    @apply bg-white border-2 border-black rounded-[2rem] p-6 shadow-sm;
+  }
+  
+  /* Pill header */
+  .pill-header {
+    @apply bg-black text-white px-4 py-1 rounded-full text-xs font-semibold tracking-widest uppercase inline-block mb-4;
+  }
+}
