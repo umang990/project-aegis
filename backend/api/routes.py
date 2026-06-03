@@ -16,7 +16,7 @@ async def deploy_swarm(request: AttackRequest):
     """
     try:
         # This will kick off the autonomous loop: attack -> eval -> patch
-        result = await run_attack_swarm(request.target_system, request.threat_vector)
+        result = await run_attack_swarm(request.target_system)
         return {"status": "success", "data": result}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
