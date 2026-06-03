@@ -8,3 +8,4 @@ langgraph
 python-dotenv
 arize-phoenix
 openinference-instrumentation-langchain
+mcp
