@@ -1,7 +1,8 @@
 import json
+import traceback
 from mcp.server import Server
 import mcp.types as types
-from pipelines.attack_pipeline import run_attack_swarm
+from pipelines.attack_pipeline import run_attack_swarm, TARGET_REGISTRY, ATTACK_REGISTRY
 
 # Create the MCP Server
 mcp = Server("Aegis-Arize-MCP")
@@ -12,17 +13,24 @@ async def list_tools() -> list[types.Tool]:
     return [
         types.Tool(
             name="deploy_swarm",
-            description="Trigger the autonomous security testing swarm against a target AI system.",
+            description=(
+                "Trigger the autonomous security testing swarm against a target AI system. "
+                "This will generate an attack, fire it at the target, evaluate if it was compromised, "
+                "score the risk, and auto-generate a patch if breached."
+            ),
             inputSchema={
                 "type": "object",
                 "properties": {
                     "target_system": {
                         "type": "string",
-                        "description": "The target system to attack (e.g., hr_bot, finance_bot, healthcare_bot, coding_assistant)"
+                        "description": "The target system to attack. Must be one of: hr_bot, finance_bot, healthcare_bot, coding_assistant",
+                        "enum": list(TARGET_REGISTRY.keys())
                     },
                     "threat_vector": {
                         "type": "string",
-                        "description": "The specific threat vector to deploy (e.g., prompt_injection, data_exfiltration, rag_poisoning)"
+                        "description": "The specific threat vector to deploy. Must be one of: prompt_injection, data_exfiltration, rag_poisoning, chaos, social_engineering",
+                        "enum": list(ATTACK_REGISTRY.keys()),
+                        "default": "prompt_injection"
                     }
                 },
                 "required": ["target_system"]
@@ -48,26 +56,55 @@ async def call_tool(name: str, arguments: dict) -> list[types.TextContent]:
     """Handle tool execution requests."""
     if name == "deploy_swarm":
         target = arguments.get("target_system", "hr_bot")
+        threat = arguments.get("threat_vector", "prompt_injection")
+        
+        # Validate target
+        if target not in TARGET_REGISTRY:
+            return [types.TextContent(
+                type="text",
+                text=f"Error: Unknown target '{target}'. Available targets: {list(TARGET_REGISTRY.keys())}"
+            )]
+        
         try:
-            # Trigger the attack pipeline
-            result = await run_attack_swarm(target)
+            # Trigger the attack pipeline with both target and threat vector
+            result = await run_attack_swarm(target, threat)
+            
+            # Format a clean summary for the agent
+            summary = {
+                "status": result.get("status", "Unknown"),
+                "target_system": result.get("target_system", target),
+                "threat_vector": result.get("threat_vector", threat),
+                "compromised": result.get("compromised", False),
+                "judge_reason": result.get("judge_reason", "N/A"),
+                "risk_score": result.get("risk_score", {}),
+                "attack_prompt": result.get("attack_prompt", "N/A"),
+                "target_response": result.get("target_response", "N/A"),
+                "recommended_patch": result.get("recommended_patch", None),
+            }
+            
             return [
                 types.TextContent(
                     type="text",
-                    text=f"Swarm deployed successfully. Result: {json.dumps(result, indent=2)}"
+                    text=f"Swarm deployed successfully against {target} using {threat}.\n\nResult:\n{json.dumps(summary, indent=2)}"
                 )
             ]
         except Exception as e:
-            return [types.TextContent(type="text", text=f"Error deploying swarm: {str(e)}")]
+            error_detail = traceback.format_exc()
+            print(f"MCP deploy_swarm error: {error_detail}")
+            return [types.TextContent(
+                type="text", 
+                text=f"Error deploying swarm against {target}: {str(e)}"
+            )]
             
     elif name == "get_arize_trace":
-        # Simulate fetching the trace from the Arize Phoenix backend
-        # In a real environment, this uses the Phoenix API or SDK
+        # Return trace info from Arize Phoenix
+        # In production, this would query the Phoenix API
         return [
             types.TextContent(
                 type="text",
                 text=json.dumps({
                     "observability": "Arize Phoenix Integration Active",
+                    "phoenix_dashboard": "https://app.phoenix.arize.com",
                     "latest_trace": {
                         "eval_score": "Compromised",
                         "vulnerability_type": "Prompt Injection",

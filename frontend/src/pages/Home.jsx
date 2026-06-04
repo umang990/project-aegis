@@ -22,7 +22,7 @@ const Home = () => {
           Continuously attack, evaluate, evolve, and harden AI agents against prompt injection and agent hijacking threats.
         </p>
         <div className="flex gap-4">
-          <Link to="/attack-lab">
+          <Link to="/">
             <Button className="gap-2"><Zap className="w-4 h-4"/> Launch Attack Swarm</Button>
           </Link>
           <Link to="/dashboard">
