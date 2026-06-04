@@ -78,12 +78,18 @@ async def run_attack_swarm(target_id: str, threat_vector: str = "prompt_injectio
     is_compromised = judge_result["compromised"]
     judge_reason = judge_result["reason"]
     
-    # 5. Log to Arize Phoenix
-    log_trace(attack_prompt, target_response, is_compromised)
-    
-    # 6. Score the risk
+    # 5. Score the risk
     risk_type = THREAT_TO_RISK_TYPE.get(threat_vector, "Prompt Injection")
     risk = score_vulnerability(risk_type, is_compromised, target_response)
+    
+    # 6. Log to Arize Phoenix (auto-instrumented LLM spans + high-level event)
+    log_trace(
+        attack_prompt, target_response, is_compromised,
+        target_system=target_id,
+        threat_vector=threat_vector,
+        judge_reason=judge_reason,
+        risk_score=risk
+    )
     
     result = {
         "status": "Success",

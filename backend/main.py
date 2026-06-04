@@ -16,12 +16,15 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger("aegis")
 
+from evaluation.arize_connector import setup_arize_phoenix
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan — startup and shutdown events."""
     logger.info("Starting Project Aegis...")
+    setup_arize_phoenix()  # Initialize Arize Phoenix tracing BEFORE anything else
     await connect_to_mongo()
-    logger.info("Project Aegis is online.")
+    logger.info("Project Aegis is online. Arize Phoenix observability active.")
     yield
     logger.info("Shutting down Project Aegis...")
     await close_mongo_connection()
